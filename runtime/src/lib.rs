@@ -50,6 +50,9 @@ pub use sp_runtime::{Perbill, Permill};
 /// Import the template pallet.
 pub use pallet_template;
 
+/// Import the kitties pallet.
+pub use pallet_kitties;
+
 /// An index to a block.
 pub type BlockNumber = u32;
 
@@ -257,6 +260,31 @@ impl pallet_balances::Config for Runtime {
 	type WeightInfo = pallet_balances::weights::SubstrateWeight<Runtime>;
 }
 
+impl pallet_nicks::Config for Runtime {
+	// The Balances pallet implements the ReservableCurrency trait.
+	// `Balances` is defined in `construct_runtime!` macro.
+	type Currency = Balances;
+
+	// Set ReservationFee to a value.
+	type ReservationFee = ConstU128<100>;
+
+	// No action is taken when deposits are forfeited.
+	type Slashed = ();
+
+	// Configure the FRAME System Root origin as the Nick pallet admin.
+	// https://paritytech.github.io/substrate/master/frame_system/enum.RawOrigin.html#variant.Root
+	type ForceOrigin = frame_system::EnsureRoot<AccountId>;
+
+	// Set MinLength of nick name to a desired value.
+	type MinLength = ConstU32<8>;
+
+	// Set MaxLength of nick name to a desired value.
+	type MaxLength = ConstU32<32>;
+
+	// The ubiquitous event type.
+	type RuntimeEvent = RuntimeEvent;
+}
+
 parameter_types! {
 	pub FeeMultiplier: Multiplier = Multiplier::one();
 }
@@ -280,6 +308,13 @@ impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 }
 
+/// Configure the pallet-kitties in pallets/kitties.
+impl pallet_kitties::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type Currency = Balances;
+	// type KittyRandomness = RandomnessCollectiveFlip;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub struct Runtime
@@ -298,6 +333,8 @@ construct_runtime!(
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
+		Nicks: pallet_nicks,
+		Kitties: pallet_kitties,
 	}
 );
 
@@ -345,6 +382,7 @@ mod benches {
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
 		[pallet_template, TemplateModule]
+		[pallet_kitties, Kitties]
 	);
 }
 
