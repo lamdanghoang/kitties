@@ -37,9 +37,17 @@ impl<T: frame_system::Config> pallet_kitties::WeightInfo for WeightInfo<T> {
 	// Storage: Kitties Owner (r:1 w:1)
 	// Storage: Kitties Kitties (r:0 w:1)
 	fn create_kitty() -> Weight {
-		// Minimum execution time: 24_816 nanoseconds.
-		Weight::from_ref_time(25_979_000)
+		// Minimum execution time: 25_201 nanoseconds.
+		Weight::from_ref_time(26_039_000)
 			.saturating_add(T::DbWeight::get().reads(2))
+			.saturating_add(T::DbWeight::get().writes(3))
+	}
+	// Storage: Kitties Owner (r:2 w:2)
+	// Storage: Kitties Kitties (r:1 w:1)
+	fn transfer_kitty() -> Weight {
+		// Minimum execution time: 19_297 nanoseconds.
+		Weight::from_ref_time(19_865_000)
+			.saturating_add(T::DbWeight::get().reads(3))
 			.saturating_add(T::DbWeight::get().writes(3))
 	}
 }

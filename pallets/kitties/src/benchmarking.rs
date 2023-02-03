@@ -23,7 +23,7 @@ benchmarks! {
 		let caller: T::AccountId = whitelisted_caller();
 		// let caller_origin: <T as frame_system::Config>::RuntimeOrigin = RawOrigin::Signed(caller.clone()).into();
 
-		Kitties::<T>::create_kitty(RawOrigin::Signed(caller.clone()).into(), dna.clone(), 0);
+		Kitties::<T>::create_kitty(RawOrigin::Signed(caller.clone()).into(), dna.clone(), 1);
 		let kitty = Owner::<T>::get(&caller);
 
 		let receiver: T::AccountId = account("receiver", 0, 0);
