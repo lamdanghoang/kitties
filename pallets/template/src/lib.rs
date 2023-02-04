@@ -17,6 +17,8 @@ mod benchmarking;
 #[frame_support::pallet]
 pub mod pallet {
 	use frame_support::pallet_prelude::*;
+	use frame_support::print;
+	use frame_support::Printable;
 	use frame_system::pallet_prelude::*;
 
 	#[pallet::pallet]
@@ -57,6 +59,16 @@ pub mod pallet {
 		StorageOverflow,
 	}
 
+	impl<T: Config> Printable for Error<T> {
+		fn print(&self) {
+			match self {
+				Error::NoneValue => "Invalid Value".print(),
+				Error::StorageOverflow => "Value Exceeded and Overflowed".print(),
+				_ => "Invalid Error Case".print(),
+			}
+		}
+	}
+
 	// Dispatchable functions allows users to interact with the pallet and invoke state changes.
 	// These functions materialize as "extrinsics", which are often compared to transactions.
 	// Dispatchable functions must be annotated with a weight and must return a DispatchResult.
@@ -88,14 +100,31 @@ pub mod pallet {
 			let _who = ensure_signed(origin)?;
 
 			// Read a value from storage.
-			match <Something<T>>::get() {
-				// Return an error if the value has not been set.
-				None => return Err(Error::<T>::NoneValue.into()),
+			// match <Something<T>>::get() {
+			// 	// Return an error if the value has not been set.
+			// 	None => return Err(Error::<T>::NoneValue.into()),
+			// 	Some(old) => {
+			// 		// Increment the value read from storage; will error in the event of overflow.
+			// 		let new = old.checked_add(1).ok_or(Error::<T>::StorageOverflow)?;
+			// 		// Update the value in storage with the incremented result.
+			// 		<Something<T>>::put(new);
+			// 		Ok(())
+			// 	},
+			// }
+
+			print("My Test Message");
+
+			match Something::<T>::get() {
+				None => {
+					print(Error::<T>::NoneValue);
+					Err(Error::<T>::NoneValue)?
+				},
 				Some(old) => {
-					// Increment the value read from storage; will error in the event of overflow.
-					let new = old.checked_add(1).ok_or(Error::<T>::StorageOverflow)?;
-					// Update the value in storage with the incremented result.
-					<Something<T>>::put(new);
+					let new = old.checked_add(1).ok_or({
+						print(Error::<T>::StorageOverflow);
+						Error::<T>::StorageOverflow
+					})?;
+					Something::<T>::put(new);
 					Ok(())
 				},
 			}
